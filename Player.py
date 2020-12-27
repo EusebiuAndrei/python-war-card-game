@@ -1,11 +1,6 @@
 import Display
 
 
-class PlayerType:
-    computer = 0
-    human = 1
-
-
 class Player:
     def __init__(self, name, cards, image, positions):
         self.name = name
@@ -17,11 +12,20 @@ class Player:
         self.picked_card = ''
 
     def get_image_pos(self):
-        return Display.compute_position(self.image, self.positions['image'])
+        return Display.compute_position(Display.get_dimension(self.image), self.positions['image'])
 
-    def clear_cards(self):
+    def delete_used_cards(self):
+        if self.picked_card == '':
+            return
+
         self.used_cards = []
         self.picked_card = ''
+
+    def show_card_back(self):
+        if self.image == Display.sprites['back']:
+            return
+
+        self.image = Display.sprites['back']
 
     def pick_card(self, nr_of_cards_to_ignore):
         nr_of_cards = len(self.cards)

@@ -3,9 +3,10 @@ from Player import Player
 
 
 class Status:
-    Choosing = 1
-    Comparing = 2
-    RoundFinished = 3
+    RoundStarted = 1
+    Choosing = 2
+    Comparing = 3
+    RoundFinished = 4
 
 
 class Game:
@@ -15,14 +16,16 @@ class Game:
 
         players = [
             Player('Computer',
-                   cards[:Card.nr_of_cards // 2], images['back'], {'image': (0.25, 0.5), 'text': (0.25, 0.2)}),
+                   cards[:Card.nr_of_cards // 2], images['back'], {'image': (0.25, 0.45), 'text': (0.25, 0.2)}),
             Player('You',
-                   cards[Card.nr_of_cards // 2:], images['back'], {'image': (0.75, 0.5), 'text': (0.75, 0.2)})
+                   cards[Card.nr_of_cards // 2:], images['back'], {'image': (0.75, 0.45), 'text': (0.75, 0.2)})
         ]
 
         self.players = players
-        self.status = Status.Choosing
+        self.status = Status.RoundStarted
         self.turn = 0
+        self.nthRound = 1
+        self.roundWinner = -1
 
     def attack(self):
         computer_card, used_computer_cards = self.players[0].pick_card(0)
@@ -49,12 +52,17 @@ class Game:
             return True
         return False
 
-    def get_winner_for_round(self):
+    def reward_winner_of_round(self):
+        if self.players[0].picked_card == '':
+            return
+
         used_cards = self.players[0].used_cards + self.players[1].used_cards
 
         if self.players[0].picked_card.power > self.players[1].picked_card.power:
             self.players[0].add_cards(used_cards)
-            self.players[0].score = self.players[0].score + len(used_cards)
+            self.roundWinner = 0
         else:
             self.players[1].add_cards(used_cards)
-            self.players[1].score = self.players[1].score + len(used_cards)
+            self.roundWinner = 1
+
+        self.nthRound = self.nthRound + 1
