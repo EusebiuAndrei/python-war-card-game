@@ -26,31 +26,42 @@ class Game:
         self.turn = 0
         self.nthRound = 1
         self.roundWinner = -1
+        self.autoplayMode = False
 
-    def attack(self):
-        computer_card, used_computer_cards = self.players[0].pick_card(0)
-        human_card, used_human_cards = self.players[1].pick_card(0)
+    def run(self):
+        # automatic transitions
+        if self.status == Status.Choosing and self.players[0].picked_card != '' and self.players[1].picked_card != '':
+            self.status = Status.Comparing
 
-        used_cards = []
+        if self.status == Status.RoundStarted:
+            self.on_round_started()
+        elif self.status == Status.Choosing:
+            self.on_choosing()
+        elif self.status == Status.RoundFinished:
+            self.on_round_finished()
 
-        while computer_card == human_card:
-            used_cards += used_computer_cards + used_human_cards
+    def autoplay(self):
+        if self.status == Status.RoundFinished:
+            self.status = Status.RoundStarted
+        elif self.status == Status.RoundStarted:
+            self.status = Status.Choosing
+        elif self.status == Status.Comparing:
+            self.status = Status.RoundFinished
 
-            nr_of_cards_to_ignore = computer_card[0].power + 2
-            if computer_card[0].name == 'A':
-                nr_of_cards_to_ignore = 11
+    def on_round_started(self):
+        self.players[0].show_card_back()
+        self.players[1].show_card_back()
 
-            computer_card, used_computer_cards = self.players[0].pick_card(nr_of_cards_to_ignore)
-            human_card, used_human_cards = self.players[1].pick_card(nr_of_cards_to_ignore)
+    def on_choosing(self):
+        self.players[0].pick_card(0)
+        self.players[0].image = self.players[0].picked_card.image
+        self.players[1].pick_card(0)
+        self.players[1].image = self.players[1].picked_card.image
 
-        if computer_card.power > human_card.power:
-            self.players[0].add_cards(used_cards)
-        else:
-            self.players[1].add_cards(used_cards)
-
-        if len(self.players[0].cards) == 0 or len(self.players[1].cards) == 0:
-            return True
-        return False
+    def on_round_finished(self):
+        self.reward_winner_of_round()
+        self.players[0].delete_used_cards()
+        self.players[1].delete_used_cards()
 
     def reward_winner_of_round(self):
         if self.players[0].picked_card == '':

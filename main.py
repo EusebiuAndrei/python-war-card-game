@@ -1,78 +1,106 @@
 import pygame
 import Display
-from Card import Card
 from Game import Game, Status
 
 
-def main(images):
-    game = Game(images)
-    Card.print_cards(game.players[0].cards)
-
-
-if __name__ == "__main__":
+def game_screen():
     game = Game(Display.sprites)
 
-    pygame.display.set_caption("War card game")
-    clock = pygame.time.Clock()
-
-    crashed = False
+    isGameFinished = False
 
     buttonText = ''
     if game.status == Status.RoundStarted:
-        buttonText = "Start Round"
+        buttonText = "Pick"
+    elif game.status == Status.Comparing:
+        buttonText = "Battle"
     elif game.status == Status.RoundFinished:
         buttonText = "Finish Round"
 
     myButton = Display.get_button_pos_and_dim(buttonText, (0.5, 0.8), (10, 5))
 
-    start_round = Display.get_button_pos_and_dim("Start Round", (0.35, 0.8), (10, 5))
-    next_round = Display.get_button_pos_and_dim("Finish Round", (0.65, 0.8), (10, 5))
-    print(start_round)
-    print(game.status)
-    while not crashed:
+    autoplayText = ''
+    if game.autoplayMode:
+        autoplayText = "Stop"
+    else:
+        autoplayText = "Autoplay"
+
+    autoplayButton = Display.get_button_pos_and_dim(autoplayText, (0.9, 0.9), (10, 5))
+
+    back_button = Display.get_button_pos_and_dim("Back", (0.1, 0.9), (10, 5))
+
+    message_end_time = pygame.time.get_ticks() + 1000  # display for 3 secondsz
+
+    while not isGameFinished:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                crashed = True
+                isGameFinished = True
+                return True
+                # print("LALA", isGameFinished, is_game_exited)
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if game.status == Status.RoundFinished:
-                    if Display.is_inside(event.pos, myButton[0], myButton[1]):
+                if Display.is_inside(event.pos, myButton[0], myButton[1]):
+                    if game.status == Status.RoundFinished:
                         game.status = Status.RoundStarted
-                elif game.status == Status.RoundStarted:
-                    if Display.is_inside(event.pos, myButton[0], myButton[1]):
+                    elif game.status == Status.RoundStarted:
                         game.status = Status.Choosing
-                elif game.status == Status.Comparing:
-                    if Display.is_inside(event.pos, myButton[0], myButton[1]):
+                    elif game.status == Status.Comparing:
                         game.status = Status.RoundFinished
+                if Display.is_inside(event.pos, autoplayButton[0], autoplayButton[1]):
+                    if game.autoplayMode is True:
+                        game.autoplayMode = False
+                    else:
+                        game.autoplayMode = True
+                if Display.is_inside(event.pos, back_button[0], back_button[1]):
+                    isGameFinished = True
 
             # print("EVENT: ", event)
-        # print("AAAAA")
-        print(game.status)
+        # print(game.status)
+        if game.autoplayMode is True:
+            current_time = pygame.time.get_ticks()
 
-        # automatic transitions
-        if game.status == Status.Choosing and game.players[0].picked_card != '' and game.players[1].picked_card != '':
-            game.status = Status.Comparing
+            if current_time > message_end_time:
+                game.autoplay()
+                message_end_time = pygame.time.get_ticks() + 1000  # display for 3 secondsz
 
-        # State
-        if game.status == Status.RoundStarted:
-            game.players[0].show_card_back()
-            game.players[1].show_card_back()
-
-        if game.status == Status.Choosing:
-            game.players[0].pick_card(0)
-            game.players[0].image = game.players[0].picked_card.image
-            game.players[1].pick_card(0)
-            game.players[1].image = game.players[1].picked_card.image
-
-        if game.status == Status.RoundFinished:
-            game.reward_winner_of_round()
-            game.players[0].delete_used_cards()
-            game.players[1].delete_used_cards()
+        game.run()
 
         Display.gameDisplay.fill(Display.white)
         Display.display_game(game)
-        # pygame.draw.rect(Display.gameDisplay, Display.red, (150, 450, 100, 50))
-        # Display.display_text()
-        # Display.display_button("sasdas", (0.5, 0.5), (20, 20))
 
         pygame.display.update()
-        clock.tick(60)
+        Display.clock.tick(60)
+
+    return False
+
+
+def home_screen():
+    isGameExited = False
+
+    start_button = Display.get_button_pos_and_dim('Start', (0.5, 0.45), (10, 5))
+    exit_button = Display.get_button_pos_and_dim('Exit', (0.5, 0.55), (10, 5))
+
+    while not isGameExited:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                isGameExited = True
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if Display.is_inside(event.pos, start_button[0], start_button[1]):
+                    isGameExited = game_screen()
+                elif Display.is_inside(event.pos, exit_button[0], exit_button[1]):
+                    isGameExited = True
+
+        Display.gameDisplay.fill(Display.white)
+        Display.display_text(f"This a war card game", (0.5, 0.35))
+        Display.display_button('Start', (0.5, 0.45), (10, 5))
+        Display.display_button('Exit', (0.5, 0.55), (10, 5))
+
+        pygame.display.update()
+        Display.clock.tick(60)
+
+
+def main():
+    pygame.display.set_caption("War card game")
+    home_screen()
+
+
+if __name__ == "__main__":
+    main()
