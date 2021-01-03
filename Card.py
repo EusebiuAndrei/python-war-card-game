@@ -2,11 +2,11 @@ from random import shuffle
 
 
 class Card:
-    nr_of_cards = 52
+    nr_of_cards = 8
     names = [str(i) for i in range(2, 11)] + ['J', 'Q', 'K', 'A']
     origins = ['C', 'S', 'H', 'D']  # Clubs, Spades, Hearts, Diamonds
     paths = [f"sprites/{name}{origin}.png" for name in names for origin in ['C', 'S', 'H', 'D']]
-    powers_and_origins = [str(power) + origin for power in range(13) for origin in ['C', 'S', 'H', 'D']]
+    powers_and_origins = [str(power) + origin for power in range(2) for origin in ['C', 'S', 'H', 'D']]
 
     def __init__(self, name, origin, power, image):
         self.name = name

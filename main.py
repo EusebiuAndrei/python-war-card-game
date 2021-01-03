@@ -30,6 +30,9 @@ def game_screen():
 
     message_end_time = pygame.time.get_ticks() + 1000  # display for 3 secondsz
 
+    formerStatus = game.status
+    print("\n\n\n\n\nGame\n")
+    print(game.status)
     while not isGameFinished:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -54,11 +57,20 @@ def game_screen():
 
             # print("EVENT: ", event)
         # print(game.status)
+        current_time = pygame.time.get_ticks()
+        if formerStatus != game.status:
+            print(game.status)
+            formerStatus = game.status
+
         if game.autoplayMode is True:
-            current_time = pygame.time.get_ticks()
 
             if current_time > message_end_time:
                 game.autoplay()
+                message_end_time = pygame.time.get_ticks() + 1000  # display for 3 secondsz
+
+        if game.status == Status.War:
+            if current_time > message_end_time:
+                game.status = Status.Choosing
                 message_end_time = pygame.time.get_ticks() + 1000  # display for 3 secondsz
 
         game.run()

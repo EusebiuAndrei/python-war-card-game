@@ -10,16 +10,23 @@ class Player:
         self.positions = positions
         self.used_cards = []
         self.picked_card = ''
+        self.former_picked_card = ''
 
     def get_image_pos(self):
         return Display.compute_position(Display.get_dimension(self.image), self.positions['image'])
+
+    def delete_picked_card(self):
+        if self.picked_card == '':
+            return
+
+        self.former_picked_card = self.picked_card
+        self.picked_card = ''
 
     def delete_used_cards(self):
         if self.picked_card == '':
             return
 
         self.used_cards = []
-        self.picked_card = ''
 
     def show_card_back(self):
         if self.image == Display.sprites['back']:
@@ -27,15 +34,25 @@ class Player:
 
         self.image = Display.sprites['back']
 
-    def pick_card(self, nr_of_cards_to_ignore):
+    def pick_card(self, take_former):
+        nr_of_cards_to_ignore = 0
+        if self.former_picked_card and take_former:
+            nr_of_cards_to_ignore = self.former_picked_card.power + 2
+
         nr_of_cards = len(self.cards)
 
         if nr_of_cards <= nr_of_cards_to_ignore:
             nr_of_cards_to_ignore = nr_of_cards - 1
 
-        self.used_cards = self.cards[:nr_of_cards_to_ignore + 1]
-        self.cards = self.cards[nr_of_cards_to_ignore:]
-        self.picked_card = self.cards.pop(0)
+        print(self.name, nr_of_cards_to_ignore)
+
+        print("Used cards - 0", self.used_cards)
+        print("Cards - 0", self.cards)
+        self.used_cards += self.cards[:nr_of_cards_to_ignore + 1]
+        self.cards = self.cards[nr_of_cards_to_ignore + 1:]
+        self.picked_card = self.used_cards[-1]
+        print("Used cards - 1", self.used_cards)
+        print("Cards - 1", self.cards)
 
     def add_cards(self, cards):
         self.cards = self.cards + cards

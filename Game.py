@@ -7,6 +7,7 @@ class Status:
     Choosing = 2
     Comparing = 3
     RoundFinished = 4
+    War = 5
 
 
 class Game:
@@ -26,9 +27,17 @@ class Game:
         self.turn = 0
         self.nthRound = 1
         self.roundWinner = -1
+        self.winner = -1
         self.autoplayMode = False
 
     def run(self):
+        if len(self.players[0].cards) == 0 and len(self.players[1].cards) == 0 and self.players[0].picked_card.power == self.players[1].picked_card.power:
+            self.winner = 2
+        if len(self.players[0].cards) == Card.nr_of_cards:
+            self.winner = 0
+        elif len(self.players[1].cards) == Card.nr_of_cards:
+            self.winner = 1
+
         # automatic transitions
         if self.status == Status.Choosing and self.players[0].picked_card != '' and self.players[1].picked_card != '':
             self.status = Status.Comparing
@@ -53,27 +62,42 @@ class Game:
         self.players[1].show_card_back()
 
     def on_choosing(self):
-        self.players[0].pick_card(0)
+        take_former = self.roundWinner == -1
+        self.players[0].pick_card(take_former)
         self.players[0].image = self.players[0].picked_card.image
-        self.players[1].pick_card(0)
+        self.players[1].pick_card(take_former)
         self.players[1].image = self.players[1].picked_card.image
 
     def on_round_finished(self):
         self.reward_winner_of_round()
-        self.players[0].delete_used_cards()
-        self.players[1].delete_used_cards()
+
+        print("RoundWinner", self.roundWinner)
+
+        if self.roundWinner == -1:
+            self.status = Status.Choosing
+            self.players[0].delete_picked_card()
+            self.players[1].delete_picked_card()
+        else:
+            self.players[0].delete_used_cards()
+            self.players[1].delete_used_cards()
+            self.players[0].delete_picked_card()
+            self.players[1].delete_picked_card()
 
     def reward_winner_of_round(self):
         if self.players[0].picked_card == '':
             return
 
         used_cards = self.players[0].used_cards + self.players[1].used_cards
+        print("On-Reward")
+        print(used_cards)
 
         if self.players[0].picked_card.power > self.players[1].picked_card.power:
             self.players[0].add_cards(used_cards)
             self.roundWinner = 0
-        else:
+        elif self.players[0].picked_card.power < self.players[1].picked_card.power:
             self.players[1].add_cards(used_cards)
             self.roundWinner = 1
+        else:
+            self.roundWinner = -1
 
         self.nthRound = self.nthRound + 1

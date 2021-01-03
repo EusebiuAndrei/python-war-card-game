@@ -56,8 +56,6 @@ def compute_position(surface, percentages):
     display_height_pos = display_height * yPercentage
 
     surface_width, surface_height = surface
-    # surface_width_center = surface.get_width() // 2
-    # surface_height_center = surface.get_height() // 2
     surface_width_center = surface_width // 2
     surface_height_center = surface_height // 2
 
@@ -70,8 +68,6 @@ def compute_position(surface, percentages):
 def is_inside(pos, surface_pos, surface_dimension):
     pos_x, pos_y = pos
     surface_pos_x, surface_pos_y = surface_pos
-    # img_width = surface.get_width()
-    # img_height = surface.get_height()
     surface_width, surface_height = surface_dimension
 
     if surface_pos_x <= pos_x <= surface_pos_x + surface_width and surface_pos_y <= pos_y <= surface_pos_y + surface_height:
@@ -132,15 +128,27 @@ def display_game(game):
 
     if game.status == Status.RoundFinished:
         if game.roundWinner == 0:
-            display_text(f"Cpu won round {game.nthRound - 1}", (0.5, 0.1))
+            if game.winner == 0:
+                display_text(f"Cpu won the game!", (0.5, 0.1))
+            else:
+                display_text(f"Cpu won round {game.nthRound - 1}", (0.5, 0.1))
             display_image(sprites['sword_to_right'], (0.5, 0.45))
         elif game.roundWinner == 1:
-            display_text(f"You won round {game.nthRound - 1}", (0.5, 0.1))
+            if game.winner == 1:
+                display_text(f"You won the game!", (0.5, 0.1))
+            else:
+                display_text(f"You won round {game.nthRound - 1}", (0.5, 0.1))
             display_image(sprites['sword_to_left'], (0.5, 0.45))
         else:
-            display_text("Equality", (0.5, 0.1))
-            display_image(sprites['shield'], (0.5, 0.45))
+            if game.winner == 2:
+                display_text(f"Draw!", (0.5, 0.1))
+                display_image(sprites['sword_to_left'], (0.5, 0.45))
+
     elif game.status == Status.Comparing:
+        if computer.picked_card.power == human.picked_card.power:
+            display_text("War", (0.5, 0.35))
+            display_image(sprites['shield'], (0.5, 0.45))
+
         display_text(f"Cards picked", (0.5, 0.1))
         display_text(f"Cpu {compute_card_picked_message(computer.picked_card)}", (0.25, 0.72))
         display_text(f"You {compute_card_picked_message(human.picked_card)}", (0.75, 0.72))
@@ -161,7 +169,7 @@ def display_game(game):
     elif game.status == Status.RoundFinished:
         buttonText = "Finish Round"
 
-    if game.autoplayMode is False:
+    if game.autoplayMode is False and game.winner == -1:
         display_button(buttonText, (0.5, 0.8), (10, 5))
 
     autoplayText = ''
@@ -170,5 +178,6 @@ def display_game(game):
     else:
         autoplayText = "Autoplay"
 
-    display_button(autoplayText, (0.9, 0.9), (10, 5))
+    if game.winner == -1:
+        display_button(autoplayText, (0.9, 0.9), (10, 5))
     display_button("Back", (0.1, 0.9), (10, 5))
