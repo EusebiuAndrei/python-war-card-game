@@ -44,15 +44,9 @@ class Player:
         if nr_of_cards <= nr_of_cards_to_ignore:
             nr_of_cards_to_ignore = nr_of_cards - 1
 
-        print(self.name, nr_of_cards_to_ignore)
-
-        print("Used cards - 0", self.used_cards)
-        print("Cards - 0", self.cards)
         self.used_cards += self.cards[:nr_of_cards_to_ignore + 1]
         self.cards = self.cards[nr_of_cards_to_ignore + 1:]
         self.picked_card = self.used_cards[-1]
-        print("Used cards - 1", self.used_cards)
-        print("Cards - 1", self.cards)
 
     def add_cards(self, cards):
         self.cards = self.cards + cards

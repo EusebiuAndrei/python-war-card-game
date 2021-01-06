@@ -13,7 +13,6 @@ class Status:
 class Game:
     def __init__(self, images):
         cards = Card.get_shuffled_cards(images)
-        # Card.print_cards(cards)
 
         players = [
             Player('Computer',
@@ -71,8 +70,6 @@ class Game:
     def on_round_finished(self):
         self.reward_winner_of_round()
 
-        print("RoundWinner", self.roundWinner)
-
         if self.roundWinner == -1:
             self.status = Status.Choosing
             self.players[0].delete_picked_card()
@@ -88,8 +85,6 @@ class Game:
             return
 
         used_cards = self.players[0].used_cards + self.players[1].used_cards
-        print("On-Reward")
-        print(used_cards)
 
         if self.players[0].picked_card.power > self.players[1].picked_card.power:
             self.players[0].add_cards(used_cards)

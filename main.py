@@ -31,14 +31,11 @@ def game_screen():
     message_end_time = pygame.time.get_ticks() + 1000  # display for 3 secondsz
 
     formerStatus = game.status
-    print("\n\n\n\n\nGame\n")
-    print(game.status)
     while not isGameFinished:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 isGameFinished = True
                 return True
-                # print("LALA", isGameFinished, is_game_exited)
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if Display.is_inside(event.pos, myButton[0], myButton[1]):
                     if game.status == Status.RoundFinished:
@@ -55,11 +52,8 @@ def game_screen():
                 if Display.is_inside(event.pos, back_button[0], back_button[1]):
                     isGameFinished = True
 
-            # print("EVENT: ", event)
-        # print(game.status)
         current_time = pygame.time.get_ticks()
         if formerStatus != game.status:
-            print(game.status)
             formerStatus = game.status
 
         if game.autoplayMode is True:
